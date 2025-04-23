@@ -1,0 +1,131 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:util="http://www.springframework.org/schema/util"  
+	xmlns:jee="http://www.springframework.org/schema/jee" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.3.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.3.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-4.3.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+		http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.3.xsd
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-4.3.xsd">
+
+	
+	<context:component-scan 
+		 base-package="com.wj.jscucc">
+	</context:component-scan>
+	
+	
+	<mvc:annotation-driven/>
+	
+
+	<bean id="viewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/"></property>
+		<property name="suffix" value=".html"></property>
+	</bean>
+		
+	
+	
+	<util:properties id="db"
+		location="classpath:config/db.properties">
+	</util:properties>
+	
+	
+	
+	<bean id="dbcp" 
+		class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="username" 
+			value="#{db.username}">
+		</property>
+		<property name="password" 
+			value="#{db.password}">
+		</property>
+		<property name="driverClassName" 
+			value="#{db.driver}">
+		</property>
+		<property name="url" 
+			value="#{db.url}">
+		</property>
+		<property name="maxActive" 
+			value="#{db.maxactive}">
+		</property>
+	</bean>
+	
+	
+
+	<bean id="ssf"
+		class="org.mybatis.spring.SqlSessionFactoryBean">
+
+		<property name="dataSource" ref="dbcp">
+		</property>
+
+		<property name="mapperLocations"
+			value="classpath:sqlmapper/sql/*.xml"></property>
+	</bean>
+	
+	
+	
+
+	 <bean id="mapperScanner"
+	 	class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+	 	
+	 	<property name="sqlSessionFactory" ref="ssf"></property>
+	 	
+	 	<property name="basePackage"
+	 		value="com.wj.jscucc.dao"></property>
+	 </bean>
+	 
+	 
+	
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	
+	
+	
+	<bean id="txManager" 
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dbcp"></property>
+	</bean>
+	
+	
+	
+	<tx:annotation-driven 
+		transaction-manager="txManager" 
+		proxy-target-class="true"/>
+	
+	
+	
+	<!-- 拦截器组件 
+	<mvc:interceptors>
+		<mvc:interceptor>-->
+			<!-- 拦截所有请求 
+			<mvc:mapping path="/**"/>-->
+			<!-- 不拦截的请求
+			<mvc:exclude-mapping path="/tologin.do"/>
+			<mvc:exclude-mapping path="/checklogin.do"/>
+			<bean class="org.spring.ys.interceptor.LoginInterceptor">
+			</bean>
+		</mvc:interceptor>
+	</mvc:interceptors>
+	 -->
+	
+	<!-- 异常处理，全局异常处理 
+	<bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="exceptionMappings">
+			<props>
+				<prop key="java.lang.Exception">error</prop>
+			</props>
+		</property>
+	</bean>
+	-->
+	
+	<!-- 自定义异常配置组件 
+	<bean class="org.spring.ys.exception.MyException">
+	</bean>
+	-->
+	
+</beans>
